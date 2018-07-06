@@ -129,7 +129,7 @@ export default {
         console.log(vm.srcPart.src);
 
 
-        var texture = (new THREE.TextureLoader).load('@/assets/particle.png');
+        var texture = new THREE.TextureLoader().load('../assets/particle.png');
         console.log(texture);
         var material = new THREE.PointCloudMaterial({
           size: 10,
@@ -213,7 +213,6 @@ export default {
   top: 0
   left: 0
 
-.none-svg,
 .none,
 .block
   display: none
