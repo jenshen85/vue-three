@@ -1,16 +1,14 @@
 <template>
   <div id="app">
-    <three-slider/>
+    <router-link to="/ThreeSlider">Go To ThreeSlider</router-link>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import ThreeSlider from './components/three-slider'
 
 export default {
-  components:{
-    ThreeSlider
-  },
+  components:{},
   name: 'App'
 }
 </script>

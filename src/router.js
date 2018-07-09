@@ -1,15 +1,15 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import ThreeSlider from './components/three-slider'
 
 Vue.use(Router)
 
 export default new Router({
+  mode: 'history',
   routes: [
     {
       path: '/ThreeSlider',
       name: 'ThreeSlider',
-      component: ThreeSlider
+      component: () => import('./components/three-slider')
     }
   ]
 })
