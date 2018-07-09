@@ -1,28 +1,24 @@
 <template>
   <div id="container">
     <canvas id="canvas" class="tempcanvas"></canvas>
-    <img class="block" src="./../assets/next.svg" alt="">
-    <img class="block" src="./../assets/marker.svg" alt="">
-    <img class="block" src="./../assets/phone.svg" alt="">
-    <img class="block" src="./../assets/menu.svg" alt="">
-    <img id="part" class="none" src="./../assets/particle.png" alt="">
   </div>
 </template>
 
 <script>
+import html from '../assets/html.svg';
+import js from '../assets/js.svg';
+import css from '../assets/css.svg';
+import particle from '../assets/particle.png';
 import * as THREE from 'three';
 import {TimelineMax} from 'gsap';
 var OrbitControls = require('three-orbit-controls')(THREE);
-
-// import { getArrayFromImage, shuffle, fillUp } from '../helpers';
 
 
 export default {
   data() {
     return {
-      imagesArr: Array.from(document.querySelectorAll('.block')),
-      srcPart: document.getElementById('part'),
-      images: []
+      images: [html, js, css],
+      // current: 0
     }
   },
   methods: {
@@ -32,17 +28,12 @@ export default {
 
     let vm = this
 
-    let size = 100
+    let size = 50
 
     let canvas = document.getElementById('canvas');
     let ctx = canvas.getContext('2d');
     canvas.width = size;
     canvas.height = size;
-
-    
-    vm.imagesArr.forEach((img) => {
-      vm.images.push(img.src)
-    })
 
 
     function fillUp ( array, max ) {
@@ -83,7 +74,7 @@ export default {
 
         }
       }
-      return shuffle(fillUp(imageCoords, 3000));
+      return shuffle(fillUp(imageCoords, 5000));
     }
 
     function loadImages(paths, whenLoaded) {
@@ -121,16 +112,12 @@ export default {
 
         var container = vm.$el;
         container.appendChild( renderer.domElement );
-        camera = new THREE.PerspectiveCamera(90, window.innerWidth/window.innerHeight, 1, 3000)
-        camera.position.z = 600;
+        camera = new THREE.PerspectiveCamera(90, window.innerWidth/window.innerHeight, 1, 10000)
+        camera.position.z = 300;
         controls = new OrbitControls( camera, renderer.domElement);
 
 
-        console.log(vm.srcPart.src);
-
-
-        var texture = new THREE.TextureLoader().load('../assets/particle.png');
-        console.log(texture);
+        var texture = new THREE.TextureLoader().load(particle);
         var material = new THREE.PointCloudMaterial({
           size: 10,
           vertexColors: THREE.VertexColors,
@@ -141,11 +128,10 @@ export default {
         geometry = new THREE.Geometry()
 
 
-        gallery.forEach((el, index) => {
-          console.log(el[0]);
-          console.log(el[1]);
-          geometry.vertices.push(new THREE.Vector3(el[0], el[1], Math.random() * 100));
+        gallery[0].forEach((el, index) => {
+          geometry.vertices.push(new THREE.Vector3(el[0], el[1], Math.random() * 10));
           geometry.colors.push(new THREE.Color(Math.random(), Math.random(), Math.random()))
+          // geometry.colors.push(new THREE.Color(0x0277bd))
         })
 
         var pointCloud = new THREE.PointCloud(geometry, material);
@@ -170,7 +156,7 @@ export default {
 
         geometry.vertices.forEach((particle, index) => {
           var dx, dy, dz;
-          dx = Math.sin(i/10 + index/2)/5;
+          dx = Math.sin(i/10 + index/2)/15;
           dy = 0;
           dz = 0;
           particle.add(new THREE.Vector3(dx, dy, dz));
@@ -189,6 +175,15 @@ export default {
       init();
       animate();
 
+      var current = 0
+      setInterval(() => {
+        current++;
+        current = current % gallery.length;
+        geometry.vertices.forEach(function(particle, index) {
+          let tl = new TimelineMax();
+          tl.to(particle, 1, { x: gallery[current][index][0], y: gallery[current][index][1]})
+        })
+      }, 3000)
 
       // var current = 0
       // document.body.addEventListener("click", () => {
