@@ -5,9 +5,9 @@
 </template>
 
 <script>
-import html from '../assets/html.svg';
-import js from '../assets/js.svg';
-import css from '../assets/css.svg';
+import html from '../assets/html2.svg';
+import js from '../assets/js2.svg';
+import css from '../assets/css2.svg';
 import particle from '../assets/particle.png';
 import * as THREE from 'three';
 import {TimelineMax} from 'gsap';
@@ -17,8 +17,7 @@ var OrbitControls = require('three-orbit-controls')(THREE);
 export default {
   data() {
     return {
-      images: [html, js, css],
-      // current: 0
+      images: [ html, css, js ]
     }
   },
   methods: {
@@ -28,7 +27,7 @@ export default {
 
     let vm = this
 
-    let size = 50
+    let size = 100
 
     let canvas = document.getElementById('canvas');
     let ctx = canvas.getContext('2d');
@@ -74,7 +73,7 @@ export default {
 
         }
       }
-      return shuffle(fillUp(imageCoords, 5000));
+      return shuffle(fillUp(imageCoords, 10000));
     }
 
     function loadImages(paths, whenLoaded) {
@@ -112,14 +111,15 @@ export default {
 
         var container = vm.$el;
         container.appendChild( renderer.domElement );
-        camera = new THREE.PerspectiveCamera(90, window.innerWidth/window.innerHeight, 1, 10000)
-        camera.position.z = 300;
+        camera = new THREE.PerspectiveCamera(90, window.innerWidth/window.innerHeight, 1, 2000)
+        camera.position.z = 600;
+        camera.position.y = 10;
         controls = new OrbitControls( camera, renderer.domElement);
 
 
         var texture = new THREE.TextureLoader().load(particle);
         var material = new THREE.PointCloudMaterial({
-          size: 10,
+          size: 13,
           vertexColors: THREE.VertexColors,
           map: texture,
           alphaTest: 0.5
@@ -129,7 +129,7 @@ export default {
 
 
         gallery[0].forEach((el, index) => {
-          geometry.vertices.push(new THREE.Vector3(el[0], el[1], Math.random() * 10));
+          geometry.vertices.push(new THREE.Vector3(el[0], el[1], Math.random() * 70));
           geometry.colors.push(new THREE.Color(Math.random(), Math.random(), Math.random()))
           // geometry.colors.push(new THREE.Color(0x0277bd))
         })
@@ -156,7 +156,7 @@ export default {
 
         geometry.vertices.forEach((particle, index) => {
           var dx, dy, dz;
-          dx = Math.sin(i/10 + index/2)/15;
+          dx = Math.sin(i/10 + index/2)/10;
           dy = 0;
           dz = 0;
           particle.add(new THREE.Vector3(dx, dy, dz));
@@ -207,9 +207,6 @@ export default {
   position: absolute
   top: 0
   left: 0
-
-.none,
-.block
   display: none
 </style>
 
