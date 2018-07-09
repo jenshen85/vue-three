@@ -1,23 +1,26 @@
 <template>
-  <div id="container">
-    <canvas id="canvas" class="tempcanvas"></canvas>
+  <div>
+    <canvas ref="canvas" class="tempcanvas"
+            :width="size" :height="size"></canvas>
   </div>
 </template>
 
 <script>
-import html from '../assets/html2.svg';
-import js from '../assets/js2.svg';
-import css from '../assets/css2.svg';
+import html from '../assets/html.svg';
+import js from '../assets/js.svg';
+import css from '../assets/css.svg';
 import particle from '../assets/particle.png';
 import * as THREE from 'three';
 import {TimelineMax} from 'gsap';
-var OrbitControls = require('three-orbit-controls')(THREE);
+import ThreeOrbitControls from 'three-orbit-controls'
 
+const OrbitControls = ThreeOrbitControls(THREE);
 
 export default {
   data() {
     return {
-      images: [ html, css, js ]
+      images: [ html, css, js ],
+      size: 100,
     }
   },
   methods: {
@@ -29,11 +32,9 @@ export default {
 
     let size = 100
 
-    let canvas = document.getElementById('canvas');
+    // let canvas = document.getElementById('canvas');
+    let canvas = this.$refs.canvas;
     let ctx = canvas.getContext('2d');
-    canvas.width = size;
-    canvas.height = size;
-
 
     function fillUp ( array, max ) {
       var length = array.length;
@@ -57,29 +58,30 @@ export default {
       ctx.drawImage( img, 0, 0, size, size )
       let data = ctx.getImageData( 0,0, size, size );
 
-      data =  data.data;
-
+      data = data.data;
 
       for( let y = 0;  y < size; y++ ) {
         for( let x = 0; x < size; x++ ) {
-          let red = data[ (( size * y ) + x ) * 4 ];
-          let green = data[ (( size * y ) + x ) * 4 + 1 ];
-          let blue = data[ (( size * y ) + x ) * 4 + 2 ];
-          let alpha = data[ (( size * y ) + x ) * 4 + 3 ];
+          const yPos = size * y
+          const xPos = yPos + x
+          const curPixelPos = xPos * 4
+          let red = data[curPixelPos];
+          let green = data[curPixelPos + 1 ];
+          let blue = data[curPixelPos + 2 ];
+          let alpha = data[curPixelPos + 3 ];
 
           if(alpha > 0) {
             imageCoords.push( [ 10 * ( x - size / 2 ), 10 * ( size / 2 - y )] );
           }
-
         }
       }
       return shuffle(fillUp(imageCoords, 10000));
     }
 
     function loadImages(paths, whenLoaded) {
-      var imgs = [];
+      let imgs = [];
       paths.forEach(function(path) {
-        var img = new Image();
+        let img = new Image();
         img.onload = function() {
           // console.log(img);
           imgs.push(img);
@@ -93,7 +95,7 @@ export default {
 
     loadImages(vm.images, function(loadedImages) {
 
-      var gallery = [];
+      let gallery = [];
       loadedImages.forEach((el,index) => {
         gallery.push(getArrayFromImage(loadedImages[index]));
       });
@@ -109,7 +111,7 @@ export default {
         renderer.setSize( window.innerWidth, window.innerHeight );
 
 
-        var container = vm.$el;
+        const container = vm.$el;
         container.appendChild( renderer.domElement );
         camera = new THREE.PerspectiveCamera(90, window.innerWidth/window.innerHeight, 1, 2000)
         camera.position.z = 600;
@@ -117,8 +119,8 @@ export default {
         controls = new OrbitControls( camera, renderer.domElement);
 
 
-        var texture = new THREE.TextureLoader().load(particle);
-        var material = new THREE.PointCloudMaterial({
+        const texture = new THREE.TextureLoader().load(particle);
+        const material = new THREE.PointCloudMaterial({
           size: 13,
           vertexColors: THREE.VertexColors,
           map: texture,
@@ -127,14 +129,13 @@ export default {
 
         geometry = new THREE.Geometry()
 
-
         gallery[0].forEach((el, index) => {
           geometry.vertices.push(new THREE.Vector3(el[0], el[1], Math.random() * 70));
           geometry.colors.push(new THREE.Color(Math.random(), Math.random(), Math.random()))
           // geometry.colors.push(new THREE.Color(0x0277bd))
         })
 
-        var pointCloud = new THREE.PointCloud(geometry, material);
+        const pointCloud = new THREE.PointCloud(geometry, material);
         scene.add(pointCloud);
 
 
@@ -148,14 +149,23 @@ export default {
         renderer.setSize( window.innerWidth, window.innerHeight )
       }
 
-      var i = 0;
+      let i = 0;
+      let current = 0;
+      let framesToChange = 60 * 3
 
       function animate() {
         i++;
-        requestAnimationFrame( animate );
+        if (i % framesToChange === 0) {
+          current++;
+          current = current % gallery.length;
+          geometry.vertices.forEach(function(particle, index) {
+            let tl = new TimelineMax();
+            tl.to(particle, 1, { x: gallery[current][index][0], y: gallery[current][index][1]})
+          })
+        }
 
         geometry.vertices.forEach((particle, index) => {
-          var dx, dy, dz;
+          let dx, dy, dz;
           dx = Math.sin(i/10 + index/2)/10;
           dy = 0;
           dz = 0;
@@ -166,6 +176,7 @@ export default {
 
         render();
 
+        requestAnimationFrame( animate );
       }
 
       function render () {
@@ -174,16 +185,6 @@ export default {
 
       init();
       animate();
-
-      var current = 0
-      setInterval(() => {
-        current++;
-        current = current % gallery.length;
-        geometry.vertices.forEach(function(particle, index) {
-          let tl = new TimelineMax();
-          tl.to(particle, 1, { x: gallery[current][index][0], y: gallery[current][index][1]})
-        })
-      }, 3000)
 
       // var current = 0
       // document.body.addEventListener("click", () => {
