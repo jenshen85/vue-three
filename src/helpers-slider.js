@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {TimelineMax} from 'gsap';
+import {TimelineLite} from 'gsap';
 import ThreeOrbitControls from 'three-orbit-controls'
 
 const OrbitControls = ThreeOrbitControls(THREE);
@@ -84,16 +84,16 @@ function cbFn(loadedImages, context, canvCtx, size) {
 
   function init( ) {
     scene = new THREE.Scene();
-    scene.background = new THREE.Color( 0xcccccc );
+    scene.background = new THREE.Color( 0xffffff );
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio( window.devicePixelRatio );
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setSize( window.innerWidth - 17, window.innerHeight );
 
 
     context.appendChild( renderer.domElement );
     camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 2000 )
-    camera.position.z = 600;
-    camera.position.y = 10;
+    camera.position.z = 900;
+    camera.position.y = 0;
     controls = new OrbitControls( camera, renderer.domElement );
 
 
@@ -108,7 +108,7 @@ function cbFn(loadedImages, context, canvCtx, size) {
     geometry = new THREE.Geometry()
 
     gallery[0].forEach((el, index) => {
-      geometry.vertices.push(new THREE.Vector3(el[0], el[1], Math.random() * 70));
+      geometry.vertices.push(new THREE.Vector3(el[0], el[1], Math.random() * 100));
       geometry.colors.push(new THREE.Color(Math.random(), Math.random(), Math.random()))
       // geometry.colors.push(new THREE.Color(0x0277bd))
     })
@@ -124,7 +124,7 @@ function cbFn(loadedImages, context, canvCtx, size) {
   function onWindowResize () {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize( window.innerWidth, window.innerHeight )
+    renderer.setSize( (window.innerWidth - 17), window.innerHeight )
   }
 
   let i = 0;
@@ -137,7 +137,7 @@ function cbFn(loadedImages, context, canvCtx, size) {
       current++;
       current = current % gallery.length;
       geometry.vertices.forEach(function(particle, index) {
-        let tl = new TimelineMax();
+        let tl = new TimelineLite();
         tl.to(particle, 1, { x: gallery[current][index][0], y: gallery[current][index][1]})
       })
     }
